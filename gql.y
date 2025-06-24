@@ -299,10 +299,10 @@ void print_ast(Node *n, int indent) {
     if (!n) return;
     int i = 0;
     for (i = 0; i < indent; i++) {
-        printf("  "); 
+        printf("|  "); 
     }
 
-    printf("%s", get_node_type_name(n->type));
+    printf("|->%s", get_node_type_name(n->type));
 
     if (n->value) {
         if (n->type == NODE_TERM && (strchr(n->value, ' ') || strchr(n->value, ':'))) {
