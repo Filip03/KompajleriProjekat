@@ -160,33 +160,38 @@ query: T_LT query_expression T_GT       {
 ;
 
 query_expression: juxtaposition_expression
-                | query_expression T_PIPE juxtaposition_expression {
-                    $$ = create_node(NODE_PIPE, NULL, 2, $1, $3);
-                }
+| query_expression T_PIPE juxtaposition_expression {
+                                            $$ = create_node(NODE_PIPE, NULL, 2, $1, $3);
+                                                    }
 ;
 
 juxtaposition_expression: unary_expression
-                        | juxtaposition_expression unary_expression {
-                            $$ = create_node(NODE_JUXTAPOSITION, NULL, 2, $1, $2);
-                        }
+| juxtaposition_expression unary_expression {
+                                        $$ = create_node(NODE_JUXTAPOSITION, NULL, 2, $1, $2);
+                                            }
 ;
 
 unary_expression: primary_expression
-                | operator unary_expression {
-                    $$ = create_node($1->type, NULL, 1, $2);
-                    free($1);
-                }
+
+| operator unary_expression         {
+                                        $$ = create_node($1->type, NULL, 1, $2);
+                                        free($1);
+                                    }
 ;
 
 primary_expression: T_WORD      {
                                     $$ = create_node(NODE_TERM, $1, 0);
                                 }
-                  | T_STRING    {
+| T_STRING                      {
                                     $$ = create_node(NODE_TERM, $1, 0);
                                 }
-                  | directive   {
+| directive                     {
                                     $$ = $1;
                                 }
+| T_LPAREN query_expression T_RPAREN    {
+
+                                            $$ = $2;
+                                        }                   
 ;
 
 directive: key T_COLON value    {

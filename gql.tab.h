@@ -79,7 +79,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 38 "gql.y"
+#line 37 "gql.y"
 
     char* str;
     struct Node* node;
