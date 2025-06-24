@@ -7,10 +7,10 @@
 void yyerror(const char *s);
 
 typedef enum {
-    NODE_PROGRAM, NODE_DECLARATION, NODE_QUERY, NODE_RESULT,
-    NODE_EXEC, NODE_ASSIGN, NODE_IF, NODE_FOR,
+    NODE_PROGRAM, NODE_DECLARATION, NODE_SEQUENCE, NODE_QUERY, NODE_QUERY_REF,
+    NODE_EXEC, NODE_ASSIGN, NODE_IF, NODE_FOR, NODE_RESULT,
     NODE_COND_EMPTY, NODE_COND_NOT_EMPTY, NODE_COND_URL_EXISTS,
-    NODE_LIST, NODE_TERM, NODE_DIRECTIVE,
+    NODE_LIST, NODE_TERM, NODE_DIRECTIVE, NODE_VALUE, NODE_KEY,
     NODE_PLUS, NODE_MINUS, NODE_STAR, NODE_PIPE, NODE_JUXTAPOSITION,
     NODE_SET_OP
 } NodeType;
@@ -31,7 +31,7 @@ Node* create_node(NodeType type, char *value, int count, ...) {
     n->type = type;
     n->value = value ? strdup(value) : NULL;
     n->child_count = count;
-    n->children = NULL;
+    n->children = NULL; // Initialize to NULL to avoid issues if count is 0
     if (count > 0) {
         n->children = malloc(sizeof(Node*) * count);
         if (n->children == NULL) {
@@ -50,19 +50,89 @@ Node* create_node(NodeType type, char *value, int count, ...) {
     return n;
 }
 
+const char* get_node_type_name(NodeType type) {
+    switch (type) {
+        case NODE_PROGRAM: return "PROGRAM";
+        case NODE_DECLARATION: return "DECLARATION_SEQUENCE";
+        case NODE_QUERY: return "QUERY_DECLARATION";
+        case NODE_QUERY_REF: return "QUERY_REFERENCE";
+        case NODE_RESULT: return "RESULT_OF_QUERY_DECLARATION";
+        case NODE_EXEC: return "EXEC_COMMAND";
+        case NODE_ASSIGN: return "ASSIGN_COMMAND";
+        case NODE_IF: return "IF_COMMAND";
+        case NODE_FOR: return "FOR_COMMAND";
+        case NODE_COND_EMPTY: return "CONDITION_EMPTY";
+        case NODE_COND_NOT_EMPTY: return "CONDITION_NOT_EMPTY";
+        case NODE_COND_URL_EXISTS: return "CONDITION_URL_EXISTS";
+        case NODE_LIST: return "QUERY_LIST";
+        case NODE_TERM: return "TERM";
+        case NODE_DIRECTIVE: return "DIRECTIVE";
+        case NODE_VALUE: return "VALUE";
+        case NODE_KEY: return "KEY";
+        case NODE_PLUS: return "PLUS";
+        case NODE_MINUS: return "MINUS";
+        case NODE_STAR: return "STAR";
+        case NODE_PIPE: return "OR";
+        case NODE_JUXTAPOSITION: return "JUXTAPOSITION";
+        case NODE_SET_OP: return "SET_OPERATION";
+        case NODE_SEQUENCE: return "BODY";
+        default: return "UNKNOWN_NODE";
+    }
+}
+
 void print_ast(Node *n, int indent) {
     if (!n) return;
     int i = 0;
-    for (i = 0; i < indent; i++) printf("|   ");
-    printf("|-> Node %d", n->type);
-    if (n->value) printf(" (%s)", n->value);
+    for (i = 0; i < indent; i++) {
+        printf("  "); // Use 2 spaces for indentation
+    }
+
+    printf("%s", get_node_type_name(n->type));
+
+    if (n->value) {
+        // Print value, handling strings with quotes if applicable
+        if (n->type == NODE_TERM && (strchr(n->value, ' ') || strchr(n->value, ':'))) { // Simple check for quoted strings
+            printf(" (\"%s\")", n->value);
+        } else {
+            printf(" (%s)", n->value);
+        }
+    }
+
     printf("\n");
-    for (i = 0; i < n->child_count; i++)
+
+    // Recursively print children
+    for (i = 0; i < n->child_count; i++) {
         print_ast(n->children[i], indent + 1);
+    }
+}
+
+void free_ast(Node *n) {
+    if (!n) return;
+
+    int i = 0;
+    // Recursively free children
+    for (i = 0; i < n->child_count; i++) {
+        free_ast(n->children[i]);
+    }
+
+    // Free the children array itself
+    if (n->children) {
+        free(n->children);
+    }
+
+    // Free the value string if it was duplicated
+    if (n->value) {
+        free(n->value);
+    }
+
+    // Free the node itself
+    free(n);
 }
 
 extern int yylex(void);
 extern int yyparse(void);
+extern int yylineno;
+extern char *yytext; 
 extern FILE *yyin;
 
 %}
@@ -91,6 +161,7 @@ extern FILE *yyin;
 program: declarations commands  {
                                     Node *prog = create_node(NODE_PROGRAM, NULL, 2, $1, $2);
                                     print_ast(prog, 0);
+                                    free_ast(prog);
                                 }
 ;
 
@@ -110,7 +181,7 @@ declaration: T_QUERY identifier T_EQ query T_SEMI   {
 
 commands: command
 | commands command      {
-                            $$ = create_node(NODE_PROGRAM, NULL, 2, $1, $2);
+                            $$ = create_node(NODE_SEQUENCE, NULL, 2, $1, $2);
                         }
 ;
 
@@ -133,17 +204,20 @@ assign_command: identifier T_EQ T_EXEC identifier   {
                                                         $$ = create_node(NODE_ASSIGN, $1, 1, exec);
                                                     }
 | identifier T_EQ identifier T_UNION identifier     {
-                                                        $$ = create_node(NODE_SET_OP, "++", 2,
+                                                        $$ = create_node(NODE_SET_OP, "++", 3,
+                                                            create_node(NODE_TERM, $1, 0),
                                                             create_node(NODE_TERM, $3, 0),
                                                             create_node(NODE_TERM, $5, 0));
                                                     }
 | identifier T_EQ identifier T_DIFF identifier      {
-                                                        $$ = create_node(NODE_SET_OP, "--", 2,
+                                                        $$ = create_node(NODE_SET_OP, "--", 3,
+                                                            create_node(NODE_TERM, $1, 0),
                                                             create_node(NODE_TERM, $3, 0),
                                                             create_node(NODE_TERM, $5, 0));
                                                     }
 | identifier T_EQ identifier T_INTERSECTION identifier  {
-                                                        $$ = create_node(NODE_SET_OP, "**", 2,
+                                                        $$ = create_node(NODE_SET_OP, "**", 3,
+                                                            create_node(NODE_TERM, $1, 0),
                                                             create_node(NODE_TERM, $3, 0),
                                                             create_node(NODE_TERM, $5, 0));
                                                         }
@@ -179,7 +253,7 @@ query_item: query                       {
                                             $$ = $1;
                                         }
 | identifier                            {
-                                            $$ = create_node(NODE_QUERY, $1, 0);
+                                            $$ = create_node(NODE_QUERY_REF, $1, 0);
                                         }
 ;
 
@@ -219,8 +293,8 @@ primary_expression: T_WORD      {
 ;
 
 directive: key T_COLON value    {
-                                    Node *k = create_node(NODE_TERM, $1, 0);
-                                    Node *v = create_node(NODE_TERM, $3, 0);
+                                    Node *k = create_node(NODE_KEY, $1, 0);
+                                    Node *v = create_node(NODE_VALUE, $3, 0);
                                     $$ = create_node(NODE_DIRECTIVE, NULL, 2, k, v);
                                 }
 ;
@@ -257,7 +331,7 @@ value: T_WORD                   {
 %%
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Error: %s\n", s);
+    fprintf(stderr, "\033[31mError: %s at line %d, near '%s'\033[0m\n", s, yylineno, yytext);
 }
 
 int main() {

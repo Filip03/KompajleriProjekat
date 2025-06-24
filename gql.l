@@ -4,6 +4,8 @@
 
 %}
 
+%option yylineno
+
 %x LINE_COMMENT
 %x MULTI_LINE_COMMENT
 
