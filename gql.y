@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-void yyerror(const char *s);
+void yyerror(const char *msg);
 
 typedef enum {
     NODE_PROGRAM, NODE_DECLARATION, NODE_SEQUENCE, NODE_QUERY, NODE_QUERY_REF,
@@ -300,7 +300,7 @@ void print_ast(Node *n, int indent) {
     printf("%s", get_node_type_name(n->type));
 
     if (n->value) {
-        if (n->type == NODE_TERM && (strchr(n->value, ' ') || strchr(n->value, ':'))) { // Simple check for quoted strings
+        if (n->type == NODE_TERM && (strchr(n->value, ' ') || strchr(n->value, ':'))) {
             printf(" (\"%s\")", n->value);
         } else {
             printf(" (%s)", n->value);
@@ -333,8 +333,8 @@ void free_ast(Node *n) {
     free(n);
 }
 
-void yyerror(const char *s) {
-    fprintf(stderr, "\033[31mError: %s at line %d, near '%s'\033[0m\n", s, yylineno, yytext);
+void yyerror(const char *msg) {
+    fprintf(stderr, "\033[31mError: %s at line %d, near '%s'\033[0m\n", msg, yylineno, yytext);
 }
 
 int main() {
