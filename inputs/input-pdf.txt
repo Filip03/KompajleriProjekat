@@ -4,6 +4,8 @@ QUERY advanced = < filetype:pdf apple +fruit -tree >;
 RESULT_OF_QUERY	temp;	
 RESULT_OF_QUERY	res;
 
+//IF NOT_EMPTY(r) BEGIN
+
 FOR	item IN	[basic,	advanced] BEGIN	
     temp = EXEC	item;	
     res	= res ++ item;	
