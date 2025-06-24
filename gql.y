@@ -71,6 +71,11 @@ declarations: declaration
 declaration: T_QUERY identifier T_EQ query T_SEMI   {
                                                         $$ = create_node(NODE_QUERY, $2, 1, $4);
                                                     }
+
+| T_QUERY identifier T_EQ list_of_queries T_SEMI    {
+                                                        $$ = create_node(NODE_QUERY, $2, 1, $4);
+                                                    }
+
 | T_RESULT_OF_QUERY identifier T_SEMI               {
                                                         $$ = create_node(NODE_RESULT, $2, 0);
                                                     }
