@@ -22,112 +22,10 @@ typedef struct Node {
     int child_count;
 } Node;
 
-Node* create_node(NodeType type, char *value, int count, ...) {
-    Node *n = malloc(sizeof(Node));
-    if (n == NULL) {
-        perror("Failed to allocate Node");
-        exit(EXIT_FAILURE);
-    }
-    n->type = type;
-    n->value = value ? strdup(value) : NULL;
-    n->child_count = count;
-    n->children = NULL; // Initialize to NULL to avoid issues if count is 0
-    if (count > 0) {
-        n->children = malloc(sizeof(Node*) * count);
-        if (n->children == NULL) {
-            perror("Failed to allocate Node children");
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    va_list args;
-    va_start(args, count);
-    int i = 0;
-    for (i = 0; i < count; i++) {
-        n->children[i] = va_arg(args, Node*);
-    }
-    va_end(args);
-    return n;
-}
-
-const char* get_node_type_name(NodeType type) {
-    switch (type) {
-        case NODE_PROGRAM: return "PROGRAM";
-        case NODE_DECLARATION: return "DECLARATION_SEQUENCE";
-        case NODE_QUERY: return "QUERY_DECLARATION";
-        case NODE_QUERY_REF: return "QUERY_REFERENCE";
-        case NODE_RESULT: return "RESULT_OF_QUERY_DECLARATION";
-        case NODE_EXEC: return "EXEC_COMMAND";
-        case NODE_ASSIGN: return "ASSIGN_COMMAND";
-        case NODE_IF: return "IF_COMMAND";
-        case NODE_FOR: return "FOR_COMMAND";
-        case NODE_COND_EMPTY: return "CONDITION_EMPTY";
-        case NODE_COND_NOT_EMPTY: return "CONDITION_NOT_EMPTY";
-        case NODE_COND_URL_EXISTS: return "CONDITION_URL_EXISTS";
-        case NODE_LIST: return "QUERY_LIST";
-        case NODE_TERM: return "TERM";
-        case NODE_DIRECTIVE: return "DIRECTIVE";
-        case NODE_VALUE: return "VALUE";
-        case NODE_KEY: return "KEY";
-        case NODE_PLUS: return "PLUS";
-        case NODE_MINUS: return "MINUS";
-        case NODE_STAR: return "STAR";
-        case NODE_PIPE: return "OR";
-        case NODE_JUXTAPOSITION: return "JUXTAPOSITION";
-        case NODE_SET_OP: return "SET_OPERATION";
-        case NODE_SEQUENCE: return "BODY";
-        default: return "UNKNOWN_NODE";
-    }
-}
-
-void print_ast(Node *n, int indent) {
-    if (!n) return;
-    int i = 0;
-    for (i = 0; i < indent; i++) {
-        printf("  "); // Use 2 spaces for indentation
-    }
-
-    printf("%s", get_node_type_name(n->type));
-
-    if (n->value) {
-        // Print value, handling strings with quotes if applicable
-        if (n->type == NODE_TERM && (strchr(n->value, ' ') || strchr(n->value, ':'))) { // Simple check for quoted strings
-            printf(" (\"%s\")", n->value);
-        } else {
-            printf(" (%s)", n->value);
-        }
-    }
-
-    printf("\n");
-
-    // Recursively print children
-    for (i = 0; i < n->child_count; i++) {
-        print_ast(n->children[i], indent + 1);
-    }
-}
-
-void free_ast(Node *n) {
-    if (!n) return;
-
-    int i = 0;
-    // Recursively free children
-    for (i = 0; i < n->child_count; i++) {
-        free_ast(n->children[i]);
-    }
-
-    // Free the children array itself
-    if (n->children) {
-        free(n->children);
-    }
-
-    // Free the value string if it was duplicated
-    if (n->value) {
-        free(n->value);
-    }
-
-    // Free the node itself
-    free(n);
-}
+Node* create_node(NodeType type, char *value, int count, ...);
+const char* get_node_type_name(NodeType type);
+void print_ast(Node *n, int indent);
+void free_ast(Node *n);
 
 extern int yylex(void);
 extern int yyparse(void);
@@ -329,6 +227,113 @@ value: T_WORD                   {
 ;
 
 %%
+
+Node* create_node(NodeType type, char *value, int count, ...) {
+    Node *n = malloc(sizeof(Node));
+    if (n == NULL) {
+        perror("Failed to allocate Node");
+        exit(EXIT_FAILURE);
+    }
+    n->type = type;
+    n->value = value ? strdup(value) : NULL;
+    n->child_count = count;
+    n->children = NULL; // Initialize to NULL to avoid issues if count is 0
+    if (count > 0) {
+        n->children = malloc(sizeof(Node*) * count);
+        if (n->children == NULL) {
+            perror("Failed to allocate Node children");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    va_list args;
+    va_start(args, count);
+    int i = 0;
+    for (i = 0; i < count; i++) {
+        n->children[i] = va_arg(args, Node*);
+    }
+    va_end(args);
+    return n;
+}
+
+const char* get_node_type_name(NodeType type) {
+    switch (type) {
+        case NODE_PROGRAM: return "PROGRAM";
+        case NODE_DECLARATION: return "DECLARATION_SEQUENCE";
+        case NODE_QUERY: return "QUERY_DECLARATION";
+        case NODE_QUERY_REF: return "QUERY_REFERENCE";
+        case NODE_RESULT: return "RESULT_OF_QUERY_DECLARATION";
+        case NODE_EXEC: return "EXEC_COMMAND";
+        case NODE_ASSIGN: return "ASSIGN_COMMAND";
+        case NODE_IF: return "IF_COMMAND";
+        case NODE_FOR: return "FOR_COMMAND";
+        case NODE_COND_EMPTY: return "CONDITION_EMPTY";
+        case NODE_COND_NOT_EMPTY: return "CONDITION_NOT_EMPTY";
+        case NODE_COND_URL_EXISTS: return "CONDITION_URL_EXISTS";
+        case NODE_LIST: return "QUERY_LIST";
+        case NODE_TERM: return "TERM";
+        case NODE_DIRECTIVE: return "DIRECTIVE";
+        case NODE_VALUE: return "VALUE";
+        case NODE_KEY: return "KEY";
+        case NODE_PLUS: return "PLUS";
+        case NODE_MINUS: return "MINUS";
+        case NODE_STAR: return "STAR";
+        case NODE_PIPE: return "OR";
+        case NODE_JUXTAPOSITION: return "JUXTAPOSITION";
+        case NODE_SET_OP: return "SET_OPERATION";
+        case NODE_SEQUENCE: return "BODY";
+        default: return "UNKNOWN_NODE";
+    }
+}
+
+void print_ast(Node *n, int indent) {
+    if (!n) return;
+    int i = 0;
+    for (i = 0; i < indent; i++) {
+        printf("  "); // Use 2 spaces for indentation
+    }
+
+    printf("%s", get_node_type_name(n->type));
+
+    if (n->value) {
+        // Print value, handling strings with quotes if applicable
+        if (n->type == NODE_TERM && (strchr(n->value, ' ') || strchr(n->value, ':'))) { // Simple check for quoted strings
+            printf(" (\"%s\")", n->value);
+        } else {
+            printf(" (%s)", n->value);
+        }
+    }
+
+    printf("\n");
+
+    // Recursively print children
+    for (i = 0; i < n->child_count; i++) {
+        print_ast(n->children[i], indent + 1);
+    }
+}
+
+void free_ast(Node *n) {
+    if (!n) return;
+
+    int i = 0;
+    // Recursively free children
+    for (i = 0; i < n->child_count; i++) {
+        free_ast(n->children[i]);
+    }
+
+    // Free the children array itself
+    if (n->children) {
+        free(n->children);
+    }
+
+    // Free the value string if it was duplicated
+    if (n->value) {
+        free(n->value);
+    }
+
+    // Free the node itself
+    free(n);
+}
 
 void yyerror(const char *s) {
     fprintf(stderr, "\033[31mError: %s at line %d, near '%s'\033[0m\n", s, yylineno, yytext);
