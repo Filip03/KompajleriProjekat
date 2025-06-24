@@ -10,7 +10,7 @@ typedef enum {
     NODE_PROGRAM, NODE_DECLARATION, NODE_SEQUENCE, NODE_QUERY, NODE_QUERY_REF,
     NODE_EXEC, NODE_ASSIGN, NODE_IF, NODE_FOR, NODE_RESULT,
     NODE_COND_EMPTY, NODE_COND_NOT_EMPTY, NODE_COND_URL_EXISTS,
-    NODE_LIST, NODE_TERM, NODE_DIRECTIVE, NODE_VALUE, NODE_KEY,
+    NODE_LIST, NODE_TERM, NODE_DIRECTIVE,
     NODE_PLUS, NODE_MINUS, NODE_STAR, NODE_PIPE, NODE_JUXTAPOSITION,
     NODE_SET_OP
 } NodeType;
@@ -195,9 +195,11 @@ primary_expression: T_WORD      {
 ;
 
 directive: key T_COLON value    {
-                                    Node *k = create_node(NODE_KEY, $1, 0);
-                                    Node *v = create_node(NODE_VALUE, $3, 0);
-                                    $$ = create_node(NODE_DIRECTIVE, NULL, 2, k, v);
+                                    size_t len = strlen($1) + strlen($3) + 2;
+                                    char* combined = malloc(len);
+                                    snprintf(combined, len, "%s:%s", $1, $3);
+                                    $$ = create_node(NODE_DIRECTIVE, combined, 0);
+                                    free(combined);
                                 }
 ;
 
@@ -277,8 +279,6 @@ const char* get_node_type_name(NodeType type) {
         case NODE_LIST: return "QUERY_LIST";
         case NODE_TERM: return "TERM";
         case NODE_DIRECTIVE: return "DIRECTIVE";
-        case NODE_VALUE: return "VALUE";
-        case NODE_KEY: return "KEY";
         case NODE_PLUS: return "PLUS";
         case NODE_MINUS: return "MINUS";
         case NODE_STAR: return "STAR";

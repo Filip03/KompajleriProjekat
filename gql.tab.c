@@ -81,7 +81,7 @@ typedef enum {
     NODE_PROGRAM, NODE_DECLARATION, NODE_SEQUENCE, NODE_QUERY, NODE_QUERY_REF,
     NODE_EXEC, NODE_ASSIGN, NODE_IF, NODE_FOR, NODE_RESULT,
     NODE_COND_EMPTY, NODE_COND_NOT_EMPTY, NODE_COND_URL_EXISTS,
-    NODE_LIST, NODE_TERM, NODE_DIRECTIVE, NODE_VALUE, NODE_KEY,
+    NODE_LIST, NODE_TERM, NODE_DIRECTIVE,
     NODE_PLUS, NODE_MINUS, NODE_STAR, NODE_PIPE, NODE_JUXTAPOSITION,
     NODE_SET_OP
 } NodeType;
@@ -498,8 +498,8 @@ static const yytype_uint8 yyrline[] =
        0,    58,    58,    65,    66,    71,    74,    79,    80,    85,
       88,    91,    94,    99,   103,   109,   115,   123,   126,   129,
      136,   141,   144,   149,   152,   157,   162,   163,   168,   169,
-     174,   176,   182,   185,   188,   191,   197,   204,   207,   210,
-     215,   220,   225,   228
+     174,   176,   182,   185,   188,   191,   197,   206,   209,   212,
+     217,   222,   227,   230
 };
 #endif
 
@@ -1745,16 +1745,18 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 197 "gql.y"
     {
-                                    Node *k = create_node(NODE_KEY, (yyvsp[(1) - (3)].str), 0);
-                                    Node *v = create_node(NODE_VALUE, (yyvsp[(3) - (3)].str), 0);
-                                    (yyval.node) = create_node(NODE_DIRECTIVE, NULL, 2, k, v);
+                                    size_t len = strlen((yyvsp[(1) - (3)].str)) + strlen((yyvsp[(3) - (3)].str)) + 2;
+                                    char* combined = malloc(len);
+                                    snprintf(combined, len, "%s:%s", (yyvsp[(1) - (3)].str), (yyvsp[(3) - (3)].str));
+                                    (yyval.node) = create_node(NODE_DIRECTIVE, combined, 0);
+                                    free(combined);
                                 ;}
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 204 "gql.y"
+#line 206 "gql.y"
     {
                                     (yyval.node) = create_node(NODE_PLUS, NULL, 0);
                                 ;}
@@ -1763,7 +1765,7 @@ yyreduce:
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 207 "gql.y"
+#line 209 "gql.y"
     {
                                     (yyval.node) = create_node(NODE_MINUS, NULL, 0);
                                 ;}
@@ -1772,7 +1774,7 @@ yyreduce:
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 210 "gql.y"
+#line 212 "gql.y"
     {
                                     (yyval.node) = create_node(NODE_STAR, NULL, 0);
                                 ;}
@@ -1781,7 +1783,7 @@ yyreduce:
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 215 "gql.y"
+#line 217 "gql.y"
     {
                                     (yyval.str) = (yyvsp[(1) - (1)].str);
                                 ;}
@@ -1790,7 +1792,7 @@ yyreduce:
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 220 "gql.y"
+#line 222 "gql.y"
     {
                                     (yyval.str) = (yyvsp[(1) - (1)].str);
                                 ;}
@@ -1799,7 +1801,7 @@ yyreduce:
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 225 "gql.y"
+#line 227 "gql.y"
     {
                                     (yyval.str) = (yyvsp[(1) - (1)].str);
                                 ;}
@@ -1808,7 +1810,7 @@ yyreduce:
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 228 "gql.y"
+#line 230 "gql.y"
     {
                                     (yyval.str) = (yyvsp[(1) - (1)].str);
                                 ;}
@@ -1817,7 +1819,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1821 "gql.tab.c"
+#line 1823 "gql.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2029,7 +2031,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 233 "gql.y"
+#line 235 "gql.y"
 
 
 Node* create_node(NodeType type, char *value, int count, ...) {
@@ -2077,8 +2079,6 @@ const char* get_node_type_name(NodeType type) {
         case NODE_LIST: return "QUERY_LIST";
         case NODE_TERM: return "TERM";
         case NODE_DIRECTIVE: return "DIRECTIVE";
-        case NODE_VALUE: return "VALUE";
-        case NODE_KEY: return "KEY";
         case NODE_PLUS: return "PLUS";
         case NODE_MINUS: return "MINUS";
         case NODE_STAR: return "STAR";
