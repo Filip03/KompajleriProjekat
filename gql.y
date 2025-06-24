@@ -31,7 +31,6 @@ extern int yylex(void);
 extern int yyparse(void);
 extern int yylineno;
 extern char *yytext; 
-extern FILE *yyin;
 
 %}
 
