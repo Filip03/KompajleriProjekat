@@ -101,22 +101,22 @@ command: T_EXEC identifier T_SEMI           {
                                             }
 ;
 
-assign_command: identifier T_EQ T_EXEC identifier   {
+assign_command: identifier T_EQ T_EXEC identifier       {
                                                         Node *exec = create_node(NODE_EXEC, $4, 0);
                                                         $$ = create_node(NODE_ASSIGN, $1, 1, exec);
-                                                    }
-| identifier T_EQ identifier T_UNION identifier     {
+                                                        }
+| identifier T_EQ identifier T_UNION identifier         {
                                                         $$ = create_node(NODE_SET_OP, "++", 3,
                                                             create_node(NODE_TERM, $1, 0),
                                                             create_node(NODE_TERM, $3, 0),
                                                             create_node(NODE_TERM, $5, 0));
-                                                    }
-| identifier T_EQ identifier T_DIFF identifier      {
+                                                        }
+| identifier T_EQ identifier T_DIFF identifier          {
                                                         $$ = create_node(NODE_SET_OP, "--", 3,
                                                             create_node(NODE_TERM, $1, 0),
                                                             create_node(NODE_TERM, $3, 0),
                                                             create_node(NODE_TERM, $5, 0));
-                                                    }
+                                                        }
 | identifier T_EQ identifier T_INTERSECTION identifier  {
                                                         $$ = create_node(NODE_SET_OP, "**", 3,
                                                             create_node(NODE_TERM, $1, 0),
