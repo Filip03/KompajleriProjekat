@@ -237,7 +237,7 @@ Node* create_node(NodeType type, char *value, int count, ...) {
     n->type = type;
     n->value = value ? strdup(value) : NULL;
     n->child_count = count;
-    n->children = NULL; // Initialize to NULL to avoid issues if count is 0
+    n->children = NULL;
     if (count > 0) {
         n->children = malloc(sizeof(Node*) * count);
         if (n->children == NULL) {
@@ -290,13 +290,12 @@ void print_ast(Node *n, int indent) {
     if (!n) return;
     int i = 0;
     for (i = 0; i < indent; i++) {
-        printf("  "); // Use 2 spaces for indentation
+        printf("  "); 
     }
 
     printf("%s", get_node_type_name(n->type));
 
     if (n->value) {
-        // Print value, handling strings with quotes if applicable
         if (n->type == NODE_TERM && (strchr(n->value, ' ') || strchr(n->value, ':'))) { // Simple check for quoted strings
             printf(" (\"%s\")", n->value);
         } else {
@@ -306,7 +305,6 @@ void print_ast(Node *n, int indent) {
 
     printf("\n");
 
-    // Recursively print children
     for (i = 0; i < n->child_count; i++) {
         print_ast(n->children[i], indent + 1);
     }
@@ -316,22 +314,18 @@ void free_ast(Node *n) {
     if (!n) return;
 
     int i = 0;
-    // Recursively free children
     for (i = 0; i < n->child_count; i++) {
         free_ast(n->children[i]);
     }
 
-    // Free the children array itself
     if (n->children) {
         free(n->children);
     }
 
-    // Free the value string if it was duplicated
     if (n->value) {
         free(n->value);
     }
 
-    // Free the node itself
     free(n);
 }
 
