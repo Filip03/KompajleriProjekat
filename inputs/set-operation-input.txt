@@ -1,0 +1,8 @@
+RESULT_OF_QUERY a;
+RESULT_OF_QUERY b;
+RESULT_OF_QUERY c;
+
+a = EXEC b;
+c = a ++ b;
+c = a -- b;
+c = a ** b;

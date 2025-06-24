@@ -1,0 +1,2 @@
+QUERY test1 = < apple >;
+EXEC test1;

@@ -1,0 +1,924 @@
+State 67 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: declarations commands
+
+    2 declarations: declaration
+    3             | declarations declaration
+
+    4 declaration: T_QUERY identifier T_EQ query T_SEMI
+    5            | T_QUERY identifier T_EQ list_of_queries T_SEMI
+    6            | T_RESULT_OF_QUERY identifier T_SEMI
+
+    7 commands: command
+    8         | commands command
+
+    9 command: T_EXEC identifier T_SEMI
+   10        | assign_command T_SEMI
+   11        | T_IF condition T_BEGIN_ commands T_END
+   12        | T_FOR identifier T_IN list_of_queries T_BEGIN_ commands T_END
+
+   13 assign_command: identifier T_EQ T_EXEC identifier
+   14               | identifier T_EQ identifier T_PLUSPLUS identifier
+   15               | identifier T_EQ identifier T_MINUSMINUS identifier
+   16               | identifier T_EQ identifier T_STARS identifier
+
+   17 condition: T_EMPTY T_LPAREN identifier T_RPAREN
+   18          | T_NOT_EMPTY T_LPAREN identifier T_RPAREN
+   19          | T_URL_EXISTS T_LPAREN identifier T_COMMA T_STRING T_RPAREN
+
+   20 list_of_queries: T_LBRACK query_list T_RBRACK
+
+   21 query_list: query
+   22           | query_list T_COMMA query
+
+   23 query: T_LT terms T_GT
+
+   24 terms: term
+   25      | terms term
+
+   26 term: T_WORD
+   27     | T_STRING
+   28     | directive
+   29     | operator term
+   30     | term T_PIPE term
+
+   31 directive: key T_COLON value
+
+   32 operator: T_PLUS
+   33         | T_MINUS
+   34         | T_STAR
+
+   35 identifier: T_WORD
+
+   36 key: T_WORD
+
+   37 value: T_WORD
+   38      | T_STRING
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+T_WORD (258) 26 35 36 37
+T_STRING (259) 19 27 38
+T_QUERY (260) 4 5
+T_RESULT_OF_QUERY (261) 6
+T_EXEC (262) 9 13
+T_IF (263) 11
+T_FOR (264) 12
+T_IN (265) 12
+T_BEGIN_ (266) 11 12
+T_END (267) 11 12
+T_EMPTY (268) 17
+T_NOT_EMPTY (269) 18
+T_URL_EXISTS (270) 19
+T_PLUS (271) 32
+T_PLUSPLUS (272) 14
+T_MINUS (273) 33
+T_MINUSMINUS (274) 15
+T_STAR (275) 34
+T_STARS (276) 16
+T_PIPE (277) 30
+T_LT (278) 23
+T_GT (279) 23
+T_LBRACK (280) 20
+T_RBRACK (281) 20
+T_LPAREN (282) 17 18 19
+T_RPAREN (283) 17 18 19
+T_EQ (284) 4 5 13 14 15 16
+T_COLON (285) 31
+T_SEMI (286) 4 5 6 9 10
+T_COMMA (287) 19 22
+
+
+Nonterminals, with rules where they appear
+
+$accept (33)
+    on left: 0
+program (34)
+    on left: 1, on right: 0
+declarations (35)
+    on left: 2 3, on right: 1 3
+declaration (36)
+    on left: 4 5 6, on right: 2 3
+commands (37)
+    on left: 7 8, on right: 1 8 11 12
+command (38)
+    on left: 9 10 11 12, on right: 7 8
+assign_command (39)
+    on left: 13 14 15 16, on right: 10
+condition (40)
+    on left: 17 18 19, on right: 11
+list_of_queries (41)
+    on left: 20, on right: 5 12
+query_list (42)
+    on left: 21 22, on right: 20 22
+query (43)
+    on left: 23, on right: 4 21 22
+terms (44)
+    on left: 24 25, on right: 23 25
+term (45)
+    on left: 26 27 28 29 30, on right: 24 25 29 30
+directive (46)
+    on left: 31, on right: 28
+operator (47)
+    on left: 32 33 34, on right: 29
+identifier (48)
+    on left: 35, on right: 4 5 6 9 12 13 14 15 16 17 18 19
+key (49)
+    on left: 36, on right: 31
+value (50)
+    on left: 37 38, on right: 31
+
+
+state 0
+
+    0 $accept: . program $end
+
+    T_QUERY            shift, and go to state 1
+    T_RESULT_OF_QUERY  shift, and go to state 2
+
+    program       go to state 3
+    declarations  go to state 4
+    declaration   go to state 5
+
+
+state 1
+
+    4 declaration: T_QUERY . identifier T_EQ query T_SEMI
+    5            | T_QUERY . identifier T_EQ list_of_queries T_SEMI
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 7
+
+
+state 2
+
+    6 declaration: T_RESULT_OF_QUERY . identifier T_SEMI
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 8
+
+
+state 3
+
+    0 $accept: program . $end
+
+    $end  shift, and go to state 9
+
+
+state 4
+
+    1 program: declarations . commands
+    3 declarations: declarations . declaration
+
+    T_WORD             shift, and go to state 6
+    T_QUERY            shift, and go to state 1
+    T_RESULT_OF_QUERY  shift, and go to state 2
+    T_EXEC             shift, and go to state 10
+    T_IF               shift, and go to state 11
+    T_FOR              shift, and go to state 12
+
+    declaration     go to state 13
+    commands        go to state 14
+    command         go to state 15
+    assign_command  go to state 16
+    identifier      go to state 17
+
+
+state 5
+
+    2 declarations: declaration .
+
+    $default  reduce using rule 2 (declarations)
+
+
+state 6
+
+   35 identifier: T_WORD .
+
+    $default  reduce using rule 35 (identifier)
+
+
+state 7
+
+    4 declaration: T_QUERY identifier . T_EQ query T_SEMI
+    5            | T_QUERY identifier . T_EQ list_of_queries T_SEMI
+
+    T_EQ  shift, and go to state 18
+
+
+state 8
+
+    6 declaration: T_RESULT_OF_QUERY identifier . T_SEMI
+
+    T_SEMI  shift, and go to state 19
+
+
+state 9
+
+    0 $accept: program $end .
+
+    $default  accept
+
+
+state 10
+
+    9 command: T_EXEC . identifier T_SEMI
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 20
+
+
+state 11
+
+   11 command: T_IF . condition T_BEGIN_ commands T_END
+
+    T_EMPTY       shift, and go to state 21
+    T_NOT_EMPTY   shift, and go to state 22
+    T_URL_EXISTS  shift, and go to state 23
+
+    condition  go to state 24
+
+
+state 12
+
+   12 command: T_FOR . identifier T_IN list_of_queries T_BEGIN_ commands T_END
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 25
+
+
+state 13
+
+    3 declarations: declarations declaration .
+
+    $default  reduce using rule 3 (declarations)
+
+
+state 14
+
+    1 program: declarations commands .
+    8 commands: commands . command
+
+    T_WORD  shift, and go to state 6
+    T_EXEC  shift, and go to state 10
+    T_IF    shift, and go to state 11
+    T_FOR   shift, and go to state 12
+
+    $default  reduce using rule 1 (program)
+
+    command         go to state 26
+    assign_command  go to state 16
+    identifier      go to state 17
+
+
+state 15
+
+    7 commands: command .
+
+    $default  reduce using rule 7 (commands)
+
+
+state 16
+
+   10 command: assign_command . T_SEMI
+
+    T_SEMI  shift, and go to state 27
+
+
+state 17
+
+   13 assign_command: identifier . T_EQ T_EXEC identifier
+   14               | identifier . T_EQ identifier T_PLUSPLUS identifier
+   15               | identifier . T_EQ identifier T_MINUSMINUS identifier
+   16               | identifier . T_EQ identifier T_STARS identifier
+
+    T_EQ  shift, and go to state 28
+
+
+state 18
+
+    4 declaration: T_QUERY identifier T_EQ . query T_SEMI
+    5            | T_QUERY identifier T_EQ . list_of_queries T_SEMI
+
+    T_LT      shift, and go to state 29
+    T_LBRACK  shift, and go to state 30
+
+    list_of_queries  go to state 31
+    query            go to state 32
+
+
+state 19
+
+    6 declaration: T_RESULT_OF_QUERY identifier T_SEMI .
+
+    $default  reduce using rule 6 (declaration)
+
+
+state 20
+
+    9 command: T_EXEC identifier . T_SEMI
+
+    T_SEMI  shift, and go to state 33
+
+
+state 21
+
+   17 condition: T_EMPTY . T_LPAREN identifier T_RPAREN
+
+    T_LPAREN  shift, and go to state 34
+
+
+state 22
+
+   18 condition: T_NOT_EMPTY . T_LPAREN identifier T_RPAREN
+
+    T_LPAREN  shift, and go to state 35
+
+
+state 23
+
+   19 condition: T_URL_EXISTS . T_LPAREN identifier T_COMMA T_STRING T_RPAREN
+
+    T_LPAREN  shift, and go to state 36
+
+
+state 24
+
+   11 command: T_IF condition . T_BEGIN_ commands T_END
+
+    T_BEGIN_  shift, and go to state 37
+
+
+state 25
+
+   12 command: T_FOR identifier . T_IN list_of_queries T_BEGIN_ commands T_END
+
+    T_IN  shift, and go to state 38
+
+
+state 26
+
+    8 commands: commands command .
+
+    $default  reduce using rule 8 (commands)
+
+
+state 27
+
+   10 command: assign_command T_SEMI .
+
+    $default  reduce using rule 10 (command)
+
+
+state 28
+
+   13 assign_command: identifier T_EQ . T_EXEC identifier
+   14               | identifier T_EQ . identifier T_PLUSPLUS identifier
+   15               | identifier T_EQ . identifier T_MINUSMINUS identifier
+   16               | identifier T_EQ . identifier T_STARS identifier
+
+    T_WORD  shift, and go to state 6
+    T_EXEC  shift, and go to state 39
+
+    identifier  go to state 40
+
+
+state 29
+
+   23 query: T_LT . terms T_GT
+
+    T_WORD    shift, and go to state 41
+    T_STRING  shift, and go to state 42
+    T_PLUS    shift, and go to state 43
+    T_MINUS   shift, and go to state 44
+    T_STAR    shift, and go to state 45
+
+    terms      go to state 46
+    term       go to state 47
+    directive  go to state 48
+    operator   go to state 49
+    key        go to state 50
+
+
+state 30
+
+   20 list_of_queries: T_LBRACK . query_list T_RBRACK
+
+    T_LT  shift, and go to state 29
+
+    query_list  go to state 51
+    query       go to state 52
+
+
+state 31
+
+    5 declaration: T_QUERY identifier T_EQ list_of_queries . T_SEMI
+
+    T_SEMI  shift, and go to state 53
+
+
+state 32
+
+    4 declaration: T_QUERY identifier T_EQ query . T_SEMI
+
+    T_SEMI  shift, and go to state 54
+
+
+state 33
+
+    9 command: T_EXEC identifier T_SEMI .
+
+    $default  reduce using rule 9 (command)
+
+
+state 34
+
+   17 condition: T_EMPTY T_LPAREN . identifier T_RPAREN
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 55
+
+
+state 35
+
+   18 condition: T_NOT_EMPTY T_LPAREN . identifier T_RPAREN
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 56
+
+
+state 36
+
+   19 condition: T_URL_EXISTS T_LPAREN . identifier T_COMMA T_STRING T_RPAREN
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 57
+
+
+state 37
+
+   11 command: T_IF condition T_BEGIN_ . commands T_END
+
+    T_WORD  shift, and go to state 6
+    T_EXEC  shift, and go to state 10
+    T_IF    shift, and go to state 11
+    T_FOR   shift, and go to state 12
+
+    commands        go to state 58
+    command         go to state 15
+    assign_command  go to state 16
+    identifier      go to state 17
+
+
+state 38
+
+   12 command: T_FOR identifier T_IN . list_of_queries T_BEGIN_ commands T_END
+
+    T_LBRACK  shift, and go to state 30
+
+    list_of_queries  go to state 59
+
+
+state 39
+
+   13 assign_command: identifier T_EQ T_EXEC . identifier
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 60
+
+
+state 40
+
+   14 assign_command: identifier T_EQ identifier . T_PLUSPLUS identifier
+   15               | identifier T_EQ identifier . T_MINUSMINUS identifier
+   16               | identifier T_EQ identifier . T_STARS identifier
+
+    T_PLUSPLUS    shift, and go to state 61
+    T_MINUSMINUS  shift, and go to state 62
+    T_STARS       shift, and go to state 63
+
+
+state 41
+
+   26 term: T_WORD .
+   36 key: T_WORD .
+
+    T_COLON   reduce using rule 36 (key)
+    $default  reduce using rule 26 (term)
+
+
+state 42
+
+   27 term: T_STRING .
+
+    $default  reduce using rule 27 (term)
+
+
+state 43
+
+   32 operator: T_PLUS .
+
+    $default  reduce using rule 32 (operator)
+
+
+state 44
+
+   33 operator: T_MINUS .
+
+    $default  reduce using rule 33 (operator)
+
+
+state 45
+
+   34 operator: T_STAR .
+
+    $default  reduce using rule 34 (operator)
+
+
+state 46
+
+   23 query: T_LT terms . T_GT
+   25 terms: terms . term
+
+    T_WORD    shift, and go to state 41
+    T_STRING  shift, and go to state 42
+    T_PLUS    shift, and go to state 43
+    T_MINUS   shift, and go to state 44
+    T_STAR    shift, and go to state 45
+    T_GT      shift, and go to state 64
+
+    term       go to state 65
+    directive  go to state 48
+    operator   go to state 49
+    key        go to state 50
+
+
+state 47
+
+   24 terms: term .
+   30 term: term . T_PIPE term
+
+    T_PIPE  shift, and go to state 66
+
+    $default  reduce using rule 24 (terms)
+
+
+state 48
+
+   28 term: directive .
+
+    $default  reduce using rule 28 (term)
+
+
+state 49
+
+   29 term: operator . term
+
+    T_WORD    shift, and go to state 41
+    T_STRING  shift, and go to state 42
+    T_PLUS    shift, and go to state 43
+    T_MINUS   shift, and go to state 44
+    T_STAR    shift, and go to state 45
+
+    term       go to state 67
+    directive  go to state 48
+    operator   go to state 49
+    key        go to state 50
+
+
+state 50
+
+   31 directive: key . T_COLON value
+
+    T_COLON  shift, and go to state 68
+
+
+state 51
+
+   20 list_of_queries: T_LBRACK query_list . T_RBRACK
+   22 query_list: query_list . T_COMMA query
+
+    T_RBRACK  shift, and go to state 69
+    T_COMMA   shift, and go to state 70
+
+
+state 52
+
+   21 query_list: query .
+
+    $default  reduce using rule 21 (query_list)
+
+
+state 53
+
+    5 declaration: T_QUERY identifier T_EQ list_of_queries T_SEMI .
+
+    $default  reduce using rule 5 (declaration)
+
+
+state 54
+
+    4 declaration: T_QUERY identifier T_EQ query T_SEMI .
+
+    $default  reduce using rule 4 (declaration)
+
+
+state 55
+
+   17 condition: T_EMPTY T_LPAREN identifier . T_RPAREN
+
+    T_RPAREN  shift, and go to state 71
+
+
+state 56
+
+   18 condition: T_NOT_EMPTY T_LPAREN identifier . T_RPAREN
+
+    T_RPAREN  shift, and go to state 72
+
+
+state 57
+
+   19 condition: T_URL_EXISTS T_LPAREN identifier . T_COMMA T_STRING T_RPAREN
+
+    T_COMMA  shift, and go to state 73
+
+
+state 58
+
+    8 commands: commands . command
+   11 command: T_IF condition T_BEGIN_ commands . T_END
+
+    T_WORD  shift, and go to state 6
+    T_EXEC  shift, and go to state 10
+    T_IF    shift, and go to state 11
+    T_FOR   shift, and go to state 12
+    T_END   shift, and go to state 74
+
+    command         go to state 26
+    assign_command  go to state 16
+    identifier      go to state 17
+
+
+state 59
+
+   12 command: T_FOR identifier T_IN list_of_queries . T_BEGIN_ commands T_END
+
+    T_BEGIN_  shift, and go to state 75
+
+
+state 60
+
+   13 assign_command: identifier T_EQ T_EXEC identifier .
+
+    $default  reduce using rule 13 (assign_command)
+
+
+state 61
+
+   14 assign_command: identifier T_EQ identifier T_PLUSPLUS . identifier
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 76
+
+
+state 62
+
+   15 assign_command: identifier T_EQ identifier T_MINUSMINUS . identifier
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 77
+
+
+state 63
+
+   16 assign_command: identifier T_EQ identifier T_STARS . identifier
+
+    T_WORD  shift, and go to state 6
+
+    identifier  go to state 78
+
+
+state 64
+
+   23 query: T_LT terms T_GT .
+
+    $default  reduce using rule 23 (query)
+
+
+state 65
+
+   25 terms: terms term .
+   30 term: term . T_PIPE term
+
+    T_PIPE  shift, and go to state 66
+
+    $default  reduce using rule 25 (terms)
+
+
+state 66
+
+   30 term: term T_PIPE . term
+
+    T_WORD    shift, and go to state 41
+    T_STRING  shift, and go to state 42
+    T_PLUS    shift, and go to state 43
+    T_MINUS   shift, and go to state 44
+    T_STAR    shift, and go to state 45
+
+    term       go to state 79
+    directive  go to state 48
+    operator   go to state 49
+    key        go to state 50
+
+
+state 67
+
+   29 term: operator term .
+   30     | term . T_PIPE term
+
+    T_PIPE  shift, and go to state 66
+
+    T_PIPE    [reduce using rule 29 (term)]
+    $default  reduce using rule 29 (term)
+
+
+state 68
+
+   31 directive: key T_COLON . value
+
+    T_WORD    shift, and go to state 80
+    T_STRING  shift, and go to state 81
+
+    value  go to state 82
+
+
+state 69
+
+   20 list_of_queries: T_LBRACK query_list T_RBRACK .
+
+    $default  reduce using rule 20 (list_of_queries)
+
+
+state 70
+
+   22 query_list: query_list T_COMMA . query
+
+    T_LT  shift, and go to state 29
+
+    query  go to state 83
+
+
+state 71
+
+   17 condition: T_EMPTY T_LPAREN identifier T_RPAREN .
+
+    $default  reduce using rule 17 (condition)
+
+
+state 72
+
+   18 condition: T_NOT_EMPTY T_LPAREN identifier T_RPAREN .
+
+    $default  reduce using rule 18 (condition)
+
+
+state 73
+
+   19 condition: T_URL_EXISTS T_LPAREN identifier T_COMMA . T_STRING T_RPAREN
+
+    T_STRING  shift, and go to state 84
+
+
+state 74
+
+   11 command: T_IF condition T_BEGIN_ commands T_END .
+
+    $default  reduce using rule 11 (command)
+
+
+state 75
+
+   12 command: T_FOR identifier T_IN list_of_queries T_BEGIN_ . commands T_END
+
+    T_WORD  shift, and go to state 6
+    T_EXEC  shift, and go to state 10
+    T_IF    shift, and go to state 11
+    T_FOR   shift, and go to state 12
+
+    commands        go to state 85
+    command         go to state 15
+    assign_command  go to state 16
+    identifier      go to state 17
+
+
+state 76
+
+   14 assign_command: identifier T_EQ identifier T_PLUSPLUS identifier .
+
+    $default  reduce using rule 14 (assign_command)
+
+
+state 77
+
+   15 assign_command: identifier T_EQ identifier T_MINUSMINUS identifier .
+
+    $default  reduce using rule 15 (assign_command)
+
+
+state 78
+
+   16 assign_command: identifier T_EQ identifier T_STARS identifier .
+
+    $default  reduce using rule 16 (assign_command)
+
+
+state 79
+
+   30 term: term . T_PIPE term
+   30     | term T_PIPE term .
+
+    $default  reduce using rule 30 (term)
+
+
+state 80
+
+   37 value: T_WORD .
+
+    $default  reduce using rule 37 (value)
+
+
+state 81
+
+   38 value: T_STRING .
+
+    $default  reduce using rule 38 (value)
+
+
+state 82
+
+   31 directive: key T_COLON value .
+
+    $default  reduce using rule 31 (directive)
+
+
+state 83
+
+   22 query_list: query_list T_COMMA query .
+
+    $default  reduce using rule 22 (query_list)
+
+
+state 84
+
+   19 condition: T_URL_EXISTS T_LPAREN identifier T_COMMA T_STRING . T_RPAREN
+
+    T_RPAREN  shift, and go to state 86
+
+
+state 85
+
+    8 commands: commands . command
+   12 command: T_FOR identifier T_IN list_of_queries T_BEGIN_ commands . T_END
+
+    T_WORD  shift, and go to state 6
+    T_EXEC  shift, and go to state 10
+    T_IF    shift, and go to state 11
+    T_FOR   shift, and go to state 12
+    T_END   shift, and go to state 87
+
+    command         go to state 26
+    assign_command  go to state 16
+    identifier      go to state 17
+
+
+state 86
+
+   19 condition: T_URL_EXISTS T_LPAREN identifier T_COMMA T_STRING T_RPAREN .
+
+    $default  reduce using rule 19 (condition)
+
+
+state 87
+
+   12 command: T_FOR identifier T_IN list_of_queries T_BEGIN_ commands T_END .
+
+    $default  reduce using rule 12 (command)

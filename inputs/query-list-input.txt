@@ -1,0 +1,6 @@
+QUERY a = <a1>;
+QUERY b = <b1>;
+RESULT_OF_QUERY tmp;
+FOR item IN [a, b] BEGIN
+    tmp = EXEC item;
+END

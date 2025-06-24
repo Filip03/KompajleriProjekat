@@ -1,0 +1,14 @@
+QUERY base = <pdf:yes apple | banana -tree>;
+QUERY extra = <+fruit>;
+
+RESULT_OF_QUERY r;
+RESULT_OF_QUERY temp;
+
+IF NOT_EMPTY(r) BEGIN
+    EXEC base;
+END
+
+FOR q IN [base, extra] BEGIN
+    temp = EXEC q;
+    r = r ++ q;
+END

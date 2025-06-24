@@ -1,0 +1,4 @@
+RESULT_OF_QUERY x;
+IF URL_EXISTS(x, "https://kompajleri.com") BEGIN
+    EXEC x;
+END
