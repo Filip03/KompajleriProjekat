@@ -43,7 +43,7 @@
 ";"                     { return T_SEMI; }
 ","                     { return T_COMMA; }
 
-\"([^"])*\"             { yylval.str = strdup(yytext);
+\"([^\\\"\n]|\\.)*\"    { yylval.str = strdup(yytext);
                             return T_STRING; }
 [a-zA-Z0-9_]+           { yylval.str = strdup(yytext);
                             return T_WORD; }
