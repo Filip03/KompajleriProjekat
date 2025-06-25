@@ -270,7 +270,7 @@ Node* create_node(NodeType type, char *value, int count, ...) {
 const char* get_node_type_name(NodeType type) {
     switch (type) {
         case NODE_PROGRAM: return "PROGRAM";
-        case NODE_DECLARATION: return "DECLARATION_SEQUENCE";
+        case NODE_DECLARATION: return "DECLARATION";
         case NODE_QUERY: return "QUERY_DECLARATION";
         case NODE_QUERY_REF: return "QUERY_REFERENCE";
         case NODE_RESULT: return "RESULT_OF_QUERY_DECLARATION";
